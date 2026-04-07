@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error</title>
+    <!-- Placeholder for favicon -->
+    <link
+      rel="icon"
+      href="https://dreamscape.ieeemanipal.com/favicon.png"
+      type="image/png"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        background-image: url("https://dreamscape.ieeemanipal.com/assets/website-background-LDZ49fmD.svg");
+        background-size: cover;
+        font-family: sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        position: relative;
+        width: 100%;
+        max-width: 400px; /* Adjust as needed */
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        color: white; /* Font color set to white */
+        z-index: 1; /* Ensure the form is above the overlay */
+      }
+
+      .message {
+        font-size: 24px;
+        margin-top: 20px;
+      }
+
+      .message.highlight {
+        color: #d9534f; /* Darker shade of red */
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        class="logo"
+        src="https://dreamscape.ieeemanipal.com/assets/dreamscape-logo-Ch6qICn0.png"
+        alt="DreamScape Logo"
+        width="200"
+      />
+      <div class="message highlight">Authentication Failed</div>
+      <div class="message highlight"><%= message %></div>
+    </div>
+  </body>
+</html>
