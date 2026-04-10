@@ -22,7 +22,7 @@ const forgotPassword = async function (req, res) {
     const link = `${process.env.BACKEND_URL}/password/reset/${user._id}/${token}`;
 
     await resend.emails.send({
-      from: "Oblivion IEEESBM <onboarding@resend.dev>",
+      from: "Oblivion IEEESBM <noreply@ieeemanipal.com>",
       to: user.email,
       subject: "Password Reset Link",
       html: `<div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
