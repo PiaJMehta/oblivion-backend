@@ -1,20 +1,9 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-//send mail setup
-//create reusable transporter object using the default SMTP transport
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // Use `true` for port 465, `false` for all other ports
-  auth: {
-    user: process.env.IEEE_EMAIL, //sender gmail address
-    pass: process.env.APP_PASSWORD, //app password from gmail account
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const forgotPassword = async function (req, res) {
   const { email } = req.body;
@@ -31,24 +20,11 @@ const forgotPassword = async function (req, res) {
       expiresIn: "5m",
     });
     const link = `${process.env.BACKEND_URL}/password/reset/${user._id}/${token}`;
-    // const link = `http://localhost:3000/password/reset/${user._id}/${token}`;
 
-    const mailOptions = {
-      from: {
-        name: "Oblivion IEEESBM",
-        address: process.env.IEEE_EMAIL,
-      },
+    await resend.emails.send({
+      from: "Oblivion IEEESBM <onboarding@resend.dev>",
       to: user.email,
       subject: "Password Reset Link",
-      text:
-        `Dear ${user.name},\n\n` +
-        "You are receiving this email because a password reset request was made for your account.\n\n" +
-        "Please click on the link below or paste this into your browser to enable account access:\n" +
-        `${link}\n\n` +
-        "Note: This link is valid for 5 minutes.\n\n" +
-        "If you did not request a password reset, please ignore this message.\n\n" +
-        "Best regards,\n" +
-        "Oblivion Dev Team, IEEESBM",
       html: `<div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
             <img src="https://dreamscape.ieeemanipal.com/assets/dreamscape-logo-Ch6qICn0.png" alt="Oblivion Logo" width="400" style="display: block; margin: 0 auto; margin-bottom: 20px;">
             <p>Dear ${user.name},</p>
@@ -66,9 +42,8 @@ const forgotPassword = async function (req, res) {
               Oblivion Dev Team, <strong>IEEESBM</strong>
             </p>
         </div>`,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
     console.log(link);
     console.log("Email has been sent successfully");
     return res.status(200).json({
@@ -89,18 +64,15 @@ const resetPassword = async function (req, res) {
     const user = await User.findOne({ _id: id });
     if (!user) {
       console.log("no user found");
-      // return res.status(401).json({ error: "Invalid or expired token" });
-      res.render("authenticationFailed", {
+      return res.render("authenticationFailed", {
         message: "Invalid or expired token",
       });
     }
     const uniqueSecret = process.env.JWT_SECRET + user.password;
     jwt.verify(token, uniqueSecret, async (err, decodedToken) => {
       if (err) {
-        // If the token is invalid or expired
         console.log("verification failed");
-        // return res.status(401).json({ error: "Invalid or expired token" });
-        res.render("authenticationFailed", {
+        return res.render("authenticationFailed", {
           message: "Invalid or expired token",
         });
       } else {
@@ -113,8 +85,7 @@ const resetPassword = async function (req, res) {
           });
         } else {
           console.log("Don't act smart");
-          // return res.status(401).json({ error: "Invalid or expired token" });
-          res.render("authenticationFailed", {
+          return res.render("authenticationFailed", {
             message: "Invalid or expired token",
           });
         }
@@ -140,18 +111,14 @@ const updatePassword = async function (req, res) {
     const uniqueSecret = process.env.JWT_SECRET + user.password;
     jwt.verify(token, uniqueSecret, async (err, decodedToken) => {
       if (err) {
-        // If the token is invalid or expired
         console.log("verification failed");
         return res.status(401).json({ error: "Invalid or expired token" });
       } else {
         const { email, id } = decodedToken;
         if (email == user.email && id == user._id) {
-          //update the password
           const hashedPassword = await bcrypt.hash(password, 10);
           user.password = hashedPassword;
           await user.save();
-          // res.json({ message: "hogaya" });
-          // res.redirect("https://dreamscape.ieeemanipal.com/");
           res.render("updatePassword", {
             name: user.name,
             email: email,
@@ -165,8 +132,8 @@ const updatePassword = async function (req, res) {
     });
   } catch (error) {
     console.log(error);
-    res
-      .json(500)
+    return res
+      .status(500)
       .json({ error: "Internal Server Error. Please try again later." });
   }
 };
