@@ -1,12 +1,14 @@
+//database connection
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 
-//database connection
-require("dotenv").config();
+
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Database Connected");
   })
@@ -15,14 +17,16 @@ mongoose
   });
 
 const app = express();
-const port = 3000 || process.env.PORT;
+const port = process.env.PORT || 3000; 
+
 
 // middleware;
 app.use(
   cors({
     credentials: true,
-    origin: "https://dreamscape.ieeemanipal.com",
+    //origin: "https://dreamscape.ieeemanipal.com",
     // origin: "http://localhost:5173", //toggle for local testing
+     origin: process.env.CLIENT_URL || "http://localhost:5173",
   })
 );
 app.use(express.json());
